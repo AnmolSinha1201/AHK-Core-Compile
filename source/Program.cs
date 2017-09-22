@@ -1,6 +1,5 @@
 ﻿using System;
 using AHKCore;
-using static AHKCore.listExtension;
 
 namespace source
 {
