@@ -1,16 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static AHKCore.BaseVisitor;
+using static AHKCore.Nodes;
+using static AHKCore.Query;
 
 namespace AHKCoreCompile
 {
 	public partial class Transformer
 	{
-		// List<object> toCSTree(List<object> AHKTree)
-		// {
-			
-		// }
+		List<object> addVariableDeclarations(List<object> AHKTree)
+		{
+			var functionBlocks = AHKTree.OfType<functionDeclarationClass>();
+
+			foreach (var functionBlock in functionBlocks)
+			{
+				var variables = functionBlock.functionBody.OfTypeRecursive<variableClass>();
+				var variableDeclarations = variables.Select(v => new variableDeclarationClass(v, variableDeclarationClass.scope.SCOPE_LOCAL));
+				functionBlock.functionBody.InsertRange(0, variableDeclarations);
+			}
+
+			return AHKTree;
+		}
 
 		/*
 			- get everything other than classes and functions, put them in the Main() function
