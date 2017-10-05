@@ -8,22 +8,10 @@ namespace AHKCoreCompile
 {
 	public partial class Transformer
 	{
-		List<object> addVariableDeclarations(List<object> AHKTree)
-		{
-			var functionBlocks = AHKTree.OfType<functionDeclarationClass>();
-
-			foreach (var functionBlock in functionBlocks)
-			{
-				var variables = functionBlock.functionBody.OfTypeRecursive<variableClass>();
-				var variableDeclarations = variables.Select(v => new variableDeclarationClass(v, variableDeclarationClass.scope.SCOPE_LOCAL));
-				functionBlock.functionBody.InsertRange(0, variableDeclarations);
-			}
-
-			return AHKTree;
-		}
-
 		/*
 			- get everything other than classes and functions, put them in the Main() function
+			- get all variableDeclarations of non-Main, and put them inside the function (for emulating their local scope)
+			- get all variableDeclarations of Main, and put them outside main (for emulating their global scope).
 			- now put everything inside a Program class.
 		 */
 		List<object> transformTopography(List<object> AHKTree)
@@ -35,8 +23,33 @@ namespace AHKCoreCompile
 
 			var others = AHKTree.Where(o => o is classDeclarationClass || o is functionDeclarationClass).ToList();
 
+			transformFunctions(AHKTree);
+			transformClasses(AHKTree);
+
+			var mainVariables = mainBlocks.OfTypeRecursive<variableClass>().Select(v => 
+				new variableDeclarationClass(v, variableDeclarationClass.scope.SCOPE_GLOBAL));
+			
+
 			others.Add(mainFunction);
+			others.AddRange(mainVariables);
 			return others;
+		}
+		
+		/*
+			- only modifies root level functions, not functions inside other structures like classes.
+		 */
+		void transformFunctions(List<object> tree)
+		{
+			foreach (functionDeclarationClass functions in tree.Where(o => o is functionDeclarationClass))
+			{
+				var variables = functions.functionBody.OfTypeRecursive<variableClass>();
+				var variableDeclarations = variables.Select(v => new variableDeclarationClass(v, variableDeclarationClass.scope.SCOPE_LOCAL));
+				functions.functionBody.InsertRange(0, variableDeclarations);
+			}
+		}
+
+		void transformClasses(List<object> tree)
+		{
 		}
 	}
 }

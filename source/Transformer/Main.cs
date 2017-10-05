@@ -10,7 +10,7 @@ namespace AHKCoreCompile
 	{
 		public void Test(List<object> AHKTree)
 		{
-			var CSAST = addVariableDeclarations(transformTopography(AHKTree));
+			var CSAST = transformTopography(AHKTree);
 
 			var traverser = new AHKCore.NodeTraverser(new CSVisitor());
 			Console.WriteLine(traverser.TraverseNodes(CSAST)?.FlattenExtraInfo("\n"));
