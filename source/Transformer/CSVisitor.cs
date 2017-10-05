@@ -8,9 +8,7 @@ namespace AHKCoreCompile
 	{
 		public override variableDeclarationClass variableDeclaration(variableDeclarationClass context)
 		{
-			if (context.variableScope == variableDeclarationClass.scope.SCOPE_LOCAL)
-				context.extraInfo = new extraInfoDelegate(() => $"dynamic {context.variableName};");
-
+			context.extraInfo = new extraInfoDelegate(() => $"dynamic {context.variableName}");
 			return context;
 		}
 
