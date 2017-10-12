@@ -50,6 +50,20 @@ namespace AHKCoreCompile
 
 		void transformClasses(List<object> tree)
 		{
+			foreach (classDeclarationClass _class in tree.Where(o => o is classDeclarationClass))
+			{
+				var variablesAssigns = _class.classBody.Where(o => o is variableAssignClass).ToList();
+				var variables = _class.classBody.OfTypeRecursive<variableClass>();
+				var variableDeclarations = variables.Select(v => new variableDeclarationClass(v, variableDeclarationClass.scope.SCOPE_LOCAL));
+				_class.classBody.InsertRange(0, variableDeclarations);
+
+				variablesAssigns.ForEach(x => _class.classBody.Remove(x));
+				var constructorHead = new functionHeadClass(_class.className, new List<parameterInfoClass>());
+				var constructor = new functionDeclarationClass(constructorHead, variablesAssigns);
+				constructor.returnType = "public"; // return type used to prepend
+
+				_class.classBody.Add(constructor);
+			}
 		}
 	}
 }
