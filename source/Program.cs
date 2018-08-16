@@ -7,8 +7,10 @@ namespace source
 	{
 		static void Main(string[] args)
 		{
-			var parserInstance = new Parser();
-			var AHKTree = parserInstance.parse("var:=123\n");
+			var compilerInstance = new Compiler();
+			var indexed = compilerInstance.Compile("class asd{\nvar := 123\nfunction(){var2:=456\nvar2:=123}}");
+
+			Console.WriteLine(Collector.Collect(indexed));
 		}
 	}
 }
